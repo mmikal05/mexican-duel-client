@@ -1,0 +1,46 @@
+.farm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.plot {
+  height: 100px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.plot.empty {
+  background: #3a2f1d;
+}
+
+.plot.growing {
+  background: #2e5a2e;
+  color: white;
+}
+
+.plot.ready {
+  background: #d4a017;
+  color: black;
+  font-weight: bold;
+}
+
+.plot:hover {
+  transform: scale(1.05);
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.pop {
+  animation: pop 0.3s;
+}

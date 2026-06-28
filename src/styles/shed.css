@@ -1,0 +1,55 @@
+.shed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.cow {
+  height: 110px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.cow.cow {
+  background: linear-gradient(145deg, #5c3d2e, #3b261b);
+  color: #fff;
+}
+
+.cow.producing {
+  background: linear-gradient(145deg, #7a5a3a, #4b3621);
+  color: #ffe8c6;
+}
+
+.cow.ready {
+  background: linear-gradient(145deg, #d2a679, #a67c52);
+  color: #2b1b0f;
+  font-weight: bold;
+}
+
+.cow:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 10px rgba(255, 200, 150, 0.3);
+}
+
+.cow div:last-child {
+  font-size: 20px;
+  margin-top: 5px;
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.bounce {
+  animation: bounce 0.3s;
+}

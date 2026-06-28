@@ -1,0 +1,203 @@
+.duel-arena {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.hp-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 40px;
+}
+
+.hp-bar-player {
+  width: 40%;
+  background: #222;
+  border-radius: 10px;
+  position: relative;
+  height: 25px;
+  overflow: hidden;
+}
+
+.hp-bar-enemy {
+  width: 40%;
+  background: #222;
+  border-radius: 10px;
+  position: relative;
+  height: 25px;
+  overflow: hidden;
+}
+
+.hp-fill-player {
+  height: 100%;
+  background: linear-gradient(90deg, #06d6a0, #118ab2);
+  transition: width 0.4s ease;
+}
+
+.hp-fill-enemy {
+  height: 100%;
+  background: linear-gradient(90deg, #ef476f, #ff6b6b);
+  transition: width 0.4s ease;
+}
+
+.hp-bar-player span {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 0;
+  font-size: 14px;
+  line-height: 25px;
+}
+
+.hp-bar-enemy span {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 0;
+  font-size: 14px;
+  line-height: 25px;
+}
+
+.character {
+  width: 45%;
+  text-align: center;
+}
+
+.body {
+  position: relative;
+  width: 200px;
+  height: 420px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.enemy-body {
+  position: relative;
+  width: 180px;
+  height: 400px;
+  margin: 0 auto;
+}
+
+.part-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.part-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.part.target {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.part-inner:hover {
+  transform: scale(1.1);
+}
+
+.part.selected {
+  border: 2px solid #ffd166;
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.part.hit {filter: drop-shadow(0 0 10px red);}
+.part.crit {filter: drop-shadow(0 0 10px gold);}
+.part.miss {filter: drop-shadow(0 0 10px grey);}
+.part.block {filter: drop-shadow(0 0 10px blue);}
+
+.timer {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #ffd166;
+  text-align: center;
+}
+
+.duel-log {
+  max-height: 150px;
+  overflow: hidden;
+  max-width: 250px;
+  margin-left: auto;
+  margin-right: auto;
+  background: #111;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.log-entry {
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  background: #1a1a1a;
+  border-left: 4px solid #444;
+  font-size: 14px;
+}
+
+.log-hit { border-color: red; }
+.log-block { border-color: blue; }
+.log-miss { border-color: grey; }
+.log-crit { border-color: gold; }
+
+.play-again-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #06d6a0;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.play-again-btn:hover {
+  transform: scale(1.05);
+}
+
+.end-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.end-screen h2 {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  width: 320px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.6);
+}
+
+.end-screen button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #06d6a0;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.end-screen button:hover {
+  transform: scale(1.05);
+}

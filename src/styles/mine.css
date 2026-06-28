@@ -1,0 +1,53 @@
+.mine-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.mine {
+  height: 110px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  font-size: 14px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mine.mine {
+  background: linear-gradient(145deg, #3a3a3a, #1f1f1f);
+  color: #ddd;
+  border: 2px solid #555;
+}
+
+.mine.recharging {
+  background: linear-gradient(145deg, #2b2b2b, #111);
+  color: #888;
+  border: 2px dashed #444;
+}
+
+.mine:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.mine div:last-child {
+  font-size: 20px;
+  margin-top: 5px;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0px #fff; }
+  50% { box-shadow: 0 0 10px #fff; }
+  100% { box-shadow: 0 0 0px #fff; }
+}
+
+.pulse {
+  animation: pulse 0.3s;
+}

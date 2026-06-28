@@ -1,0 +1,19 @@
+:root {
+  --bg-dark: #0f172a;
+  --panel: #1e293b;
+  --panel-2: #334155;
+
+  --gold: #facc15;
+  --green: #22c55e;
+  --red: #ef4444;
+  --blue: #3b82f6;
+
+  --text: #e2e8f0;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #1e293b, #020617);
+  color: var(--text);
+  font-family: "Segoe UI", sans-serif;
+}
