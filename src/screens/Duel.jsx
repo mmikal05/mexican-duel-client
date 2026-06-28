@@ -3,11 +3,11 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import { useGame } from "../context/GameContext";
 import "../styles/duel.css";
 import { io } from "socket.io-client";
-import hatImg from "../assets/gear/hat.png";
-import jacketImg from "../assets/gear/jacket.png";
-import beltImg from "../assets/gear/belt.png";
-import pantsImg from "../assets/gear/pants.png";
-import bootsImg from "../assets/gear/boots.png";
+import hatImg from "../assets/gear/Hat.png";
+import jacketImg from "../assets/gear/Jacket.png";
+import beltImg from "../assets/gear/Belt.png";
+import pantsImg from "../assets/gear/Pants.png";
+import bootsImg from "../assets/gear/Boots.png";
 
 const socket = io("mexican-duel-server-production.up.railway.app", {
   transports: ["websocket"],
