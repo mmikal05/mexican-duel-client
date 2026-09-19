@@ -1,29 +1,32 @@
-import { GameProvider, useGame } from "./context/GameContext";
+import { useState } from "react";
+import { useGame } from "./context/GameContext";
 import ScreenManager from "./navigation/ScreenManager";
 import TopBar from "./components/TopBar";
+import InventoryPanel from "./components/InventoryPanel";
 import Login from "./screens/Login";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "./firebase";
 
 function AppContent() {
   const { user, loading } = useGame();
+  const [showInv, setShowInv] = useState(false);
 
   if (loading) return <div>Loading...</div>;
 
-  if (!user) {return (<Login/>);}
+  if (!user) return <Login />;
 
   return (
     <>
-      <TopBar />
+      <TopBar onOpenInventory={() => setShowInv(true)} />
+
+      <InventoryPanel
+        open={showInv}
+        onClose={() => setShowInv(false)}
+      />
+
       <ScreenManager />
     </>
   );
 }
 
 export default function App() {
-  return (
-    <GameProvider>
-      <AppContent />
-    </GameProvider>
-  );
+  return <AppContent />;
 }

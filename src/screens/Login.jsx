@@ -1,28 +1,25 @@
 import "../styles/login.css";
 import { useState } from "react";
-import { auth, db } from "../firebase";
-import { doc, setDoc } from "firebase/firestore";
-import { useGame } from "../context/GameContext";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 
 export default function Login() {
-  const {user} = useGame();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const login = async () => {await signInWithEmailAndPassword(auth, email, password);};
-
-  const register = async () => {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCred.user;
-
-    await setDoc(doc(db, "users", user.uid), {
-      email: user.email,
-      exp: 0,
-      coins: 100,
-      inventory: {},
-      createdAt: Date.now(),
-    });
+  // The player's Firestore document is created by GameContext on first load,
+  // so registering only has to create the auth account.
+  const submit = async (authAction) => {
+    setError("");
+    try {
+      await authAction(auth, email, password);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -43,9 +40,25 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
+        {error && (
+          <div style={{ color: "#ff6b6b", fontSize: 13, marginBottom: 8 }}>
+            {error}
+          </div>
+        )}
+
         <div className="login-buttons">
-          <button onClick={login} className="login-btn">LOGIN</button>
-          <button onClick={register} className="register-btn">REGISTER</button>
+          <button
+            onClick={() => submit(signInWithEmailAndPassword)}
+            className="login-btn"
+          >
+            LOGIN
+          </button>
+          <button
+            onClick={() => submit(createUserWithEmailAndPassword)}
+            className="register-btn"
+          >
+            REGISTER
+          </button>
         </div>
       </div>
     </div>

@@ -1,76 +1,100 @@
 import { useGame } from "../context/GameContext";
 import ScreenWrapper from "../components/ScreenWrapper";
 
+const BUY_ITEMS = [
+  { key: "seeds", label: "Seeds", icon: "🌾", price: 2 },
+  { key: "axes", label: "Axe", icon: "🪓", price: 4 },
+  { key: "pickaxes", label: "Pickaxe", icon: "⛏️", price: 6 },
+  { key: "feed", label: "Feed", icon: "🐄", price: 8 },
+];
+
+// Placeholder prices: each is 50% above the cost of the item that produces it
+// (seed 2 -> wheat 3, axe 4 -> wood 6, pickaxe 6 -> gold 9, feed 8 -> leather 12).
+// Tune these once crafting and wagers exist.
+const SELL_ITEMS = [
+  { key: "wheat", label: "Wheat", icon: "🌽", price: 3 },
+  { key: "wood", label: "Wood", icon: "🌲", price: 6 },
+  { key: "gold", label: "Gold", icon: "🪙", price: 9 },
+  { key: "leather", label: "Leather", icon: "🧥", price: 12 },
+];
+
 export default function Shop() {
   const { player, setPlayer, inventory, setInventory } = useGame();
 
-  const buySeeds = () => {
-    if (player.coins < 1) return;
+  const buyItem = (item) => {
+    if (player.coins < item.price) return;
 
-    setPlayer(prev => ({
-      ...prev,
-      coins: prev.coins - 1,
-    }));
-
-    setInventory(prev => ({
-      ...prev,
-      seeds: prev.seeds + 1,
-    }));
+    setPlayer((prev) => ({ ...prev, coins: prev.coins - item.price }));
+    setInventory((prev) => ({ ...prev, [item.key]: prev[item.key] + 1 }));
   };
 
-  const buyAxe = () => {
-    if (player.coins < 1) return;
+  const sellItem = (item, all = false) => {
+    const owned = inventory[item.key];
+    const amount = all ? owned : Math.min(1, owned);
+    if (amount <= 0) return;
 
-    setPlayer(prev => ({
-      ...prev,
-      coins: prev.coins - 1,
-    }));
-
-    setInventory(prev => ({
-      ...prev,
-      axes: prev.axes + 1,
-    }));
-  };
-
-  const buyPickaxe = () => {
-    if (player.coins < 1) return;
-
-    setPlayer(prev => ({ 
-      ...prev,
-      coins: prev.coins - 1,
-    }));
-
-    setInventory(prev => ({ 
-      ...prev,
-      pickaxes: prev.pickaxes + 1,
-    }));
-  };
-
-  const buyFeed = () => {
-    if (player.coins < 1) return;
-
-    setPlayer(prev => ({ 
-      ...prev,
-      coins: prev.coins - 1,
-    }));
-
-    setInventory(prev => ({ 
-      ...prev,
-      feed: prev.feed + 1,
-    }));
+    setInventory((prev) => ({ ...prev, [item.key]: prev[item.key] - amount }));
+    setPlayer((prev) => ({ ...prev, coins: prev.coins + amount * item.price }));
   };
 
   return (
     <ScreenWrapper title="🛒 Shop">
-      <button onClick={buySeeds}>Buy Seed</button>
-      <button onClick={buyAxe}>Buy Axe</button>
-      <button onClick={buyPickaxe}>Buy Pickaxe</button>
-      <button onClick={buyFeed}>Buy Feed</button>
+      <div className="shop-container">
+        <h4 className="shop-category">Tools & Supplies</h4>
 
-      <p>Seeds: {inventory.seeds}</p>
-      <p>Axes: {inventory.axes}</p>
-      <p>Pickaxes: {inventory.pickaxes}</p>
-      <p>Feed: {inventory.feed}</p>
+        <div className="shop-grid">
+          {BUY_ITEMS.map((item) => (
+            <div className="shop-card" key={item.key}>
+              <div className="shop-icon">{item.icon}</div>
+              <div className="shop-name">{item.label}</div>
+              <div className="shop-count">Owned: {inventory[item.key]}</div>
+              <div className="shop-price">💰 {item.price} Coins</div>
+
+              <button
+                className="shop-btn"
+                disabled={player.coins < item.price}
+                onClick={() => buyItem(item)}
+              >
+                {player.coins < item.price ? "Not Enough" : "Buy"}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <h4 className="shop-category">Sell Resources</h4>
+
+        <div className="shop-grid">
+          {SELL_ITEMS.map((item) => {
+            const owned = inventory[item.key];
+
+            return (
+              <div className="shop-card" key={item.key}>
+                <div className="shop-icon">{item.icon}</div>
+                <div className="shop-name">{item.label}</div>
+                <div className="shop-count">Owned: {owned}</div>
+                <div className="shop-price">💰 {item.price} Coins each</div>
+
+                <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                  <button
+                    className="shop-btn"
+                    disabled={owned <= 0}
+                    onClick={() => sellItem(item)}
+                  >
+                    Sell
+                  </button>
+                  <button
+                    className="shop-btn"
+                    disabled={owned <= 0}
+                    onClick={() => sellItem(item, true)}
+                  >
+                    Sell All
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </ScreenWrapper>
   );
 }

@@ -1,55 +1,82 @@
+/* GRID */
 .shed-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-top: 20px;
+  gap: 20px;
+  padding: 10px;
 }
 
-.cow {
-  height: 110px;
-  border-radius: 12px;
+/* TILE */
+.shed-tile {
+  height: 140px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #1a1a1a, #111);
+  border: 1px solid #2a2a2a;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  cursor: pointer;
-
-  font-size: 14px;
-  transition: all 0.2s ease;
+  justify-content: center;
+  transition: 0.2s;
+  position: relative;
 }
 
-.cow.cow {
-  background: linear-gradient(145deg, #5c3d2e, #3b261b);
-  color: #fff;
+/* HOVER */
+.shed-tile:hover {
+  transform: scale(1.05);
+  border-color: #ef476f;
 }
 
-.cow.producing {
-  background: linear-gradient(145deg, #7a5a3a, #4b3621);
-  color: #ffe8c6;
+/* ICON */
+.shed-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
 }
 
-.cow.ready {
-  background: linear-gradient(145deg, #d2a679, #a67c52);
-  color: #2b1b0f;
-  font-weight: bold;
+/* TEXT */
+.shed-status {
+  font-size: 13px;
+  color: #ccc;
 }
 
-.cow:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 10px rgba(255, 200, 150, 0.3);
+/* STATES */
+.shed-tile.empty {
+  opacity: 0.7;
 }
 
-.cow div:last-child {
-  font-size: 20px;
-  margin-top: 5px;
+.shed-tile.processing {
+  border-color: #ff6b6b;
+}
+
+.shed-tile.ready {
+  border-color: #06d6a0;
+  box-shadow: 0 0 15px rgba(6, 214, 160, 0.3);
+}
+
+/* PROGRESS */
+.shed-progress {
+  position: absolute;
+  bottom: 8px;
+  left: 10%;
+  width: 80%;
+  height: 6px;
+  background: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.shed-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ef476f, #ffd166);
+  transition: width 0.3s linear;
+}
+
+/* ANIMATION */
+.shed-tile.bounce {
+  animation: bounce 0.3s ease;
 }
 
 @keyframes bounce {
   0% { transform: scale(1); }
   50% { transform: scale(1.15); }
   100% { transform: scale(1); }
-}
-
-.bounce {
-  animation: bounce 0.3s;
 }

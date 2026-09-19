@@ -14,10 +14,6 @@ button {
   border: none;
 }
 
-.screen {
-  padding: 20px;
-}
-
 .clickable {
   cursor: pointer;
 }

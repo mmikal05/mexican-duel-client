@@ -8,6 +8,7 @@ import "./styles/forest.css";
 import "./styles/mine.css";
 import "./styles/shed.css";
 import "./styles/duel.css";
+import "./styles/ui.css";
 import { GameProvider } from "./context/GameContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

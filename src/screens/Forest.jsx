@@ -6,6 +6,8 @@ import FloatingText from "../components/FloatingText";
 
 const TREE_RESPAWN = 10000;
 
+const isReady = (plot) => plot.ready || Date.now() >= plot.endTime;
+
 export default function Forest() {
   const { inventory, setInventory, forestPlots, setForestPlots } = useGame();
 
@@ -14,45 +16,29 @@ export default function Forest() {
 
   useGameTick();
 
-  const updated = forestPlots.map(p =>
-    !p.ready && Date.now() >= p.endTime ? { ready: true } : p
-  );
-
-  if (JSON.stringify(updated) !== JSON.stringify(forestPlots)) {
-    setForestPlots(updated);
-  }
-
   const handleClick = (index, e) => {
     const plot = forestPlots[index];
-    if (!plot.ready || inventory.axes <= 0) return;
+    if (!isReady(plot) || inventory.axes <= 0) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
 
     setAnimIndex(index);
     setTimeout(() => setAnimIndex(null), 300);
 
-    setFloatingTexts(prev => [
+    setFloatingTexts((prev) => [
       ...prev,
       {
         id: Date.now(),
         text: "+1 Wood",
         x: rect.left + rect.width / 2,
-        y: rect.top
-      }
+        y: rect.top,
+      },
     ]);
 
     const newPlots = [...forestPlots];
-    newPlots[index] = {
-      ready: false,
-      endTime: Date.now() + TREE_RESPAWN
-    };
+    newPlots[index] = { ready: false, endTime: Date.now() + TREE_RESPAWN };
 
-    setInventory(p => ({
-      ...p,
-      axes: p.axes - 1,
-      wood: p.wood + 1
-    }));
-
+    setInventory((p) => ({ ...p, axes: p.axes - 1, wood: p.wood + 1 }));
     setForestPlots(newPlots);
   };
 
@@ -60,13 +46,9 @@ export default function Forest() {
     <div>
       <div className="forest-grid">
         {forestPlots.map((plot, i) => {
-          let status = "tree";
-          let timeLeft = 0;
-
-          if (!plot.ready) {
-            timeLeft = plot.endTime - Date.now();
-            status = timeLeft > 0 ? "regrowing" : "tree";
-          }
+          const ready = isReady(plot);
+          const timeLeft = ready ? 0 : plot.endTime - Date.now();
+          const status = ready ? "tree" : "regrowing";
 
           return (
             <div
@@ -76,19 +58,30 @@ export default function Forest() {
               }`}
               onClick={(e) => handleClick(i, e)}
             >
-              <div>{status}</div>
-              {status === "regrowing" && <div>{formatTime(timeLeft)}</div>}
-              {status === "tree" && <div>🌲</div>}
+              <div className="tree-icon">{ready ? "🌲" : "🌱"}</div>
+
+              <div className="tree-status">
+                {ready ? "Chop" : formatTime(timeLeft)}
+              </div>
+
+              {!ready && (
+                <div className="tree-progress">
+                  <div
+                    className="tree-progress-fill"
+                    style={{ width: `${100 - (timeLeft / TREE_RESPAWN) * 100}%` }}
+                  />
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      {floatingTexts.map(ft => (
-        <FloatingText key={ft.id} {...ft}
-          onDone={() =>
-            setFloatingTexts(p => p.filter(t => t.id !== ft.id))
-          }
+      {floatingTexts.map((ft) => (
+        <FloatingText
+          key={ft.id}
+          {...ft}
+          onDone={() => setFloatingTexts((p) => p.filter((t) => t.id !== ft.id))}
         />
       ))}
     </div>

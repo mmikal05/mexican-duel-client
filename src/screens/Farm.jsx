@@ -72,9 +72,30 @@ export default function Farm() {
               }`}
               onClick={(e) => handleClick(i, e)}
             >
-              <div>{status}</div>
-              {status === "growing" && <div>{formatTime(timeLeft)}</div>}
-              {status === "ready" && <div>🌾</div>}
+            <div className="plot-icon">
+              {status === "empty" && "🟫"}
+              {status === "growing" && "🌱"}
+              {status === "ready" && "🌾"}
+            </div>
+
+            <div className="plot-status">
+              {status === "empty" && "Empty"}
+              {status === "growing" && formatTime(timeLeft)}
+              {status === "ready" && "Harvest"}
+            </div>
+
+              {status === "growing" && (
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill"
+                    style={{
+                      width: `${
+                        100 - (timeLeft / FARM_DURATION) * 100
+                      }%`
+                    }}
+                  />
+                </div>
+              )}
             </div>
           );
         })}
