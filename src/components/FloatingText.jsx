@@ -1,27 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
+// "+1 Wheat" style feedback that floats up from a point on screen, then removes itself.
 export default function FloatingText({ text, x, y, onDone }) {
-  const [visible, setVisible] = useState(true);
+  const doneRef = useRef(onDone);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setVisible(false);
-      onDone();
-    }, 800);
+    doneRef.current = onDone;
+  });
 
-    return () => clearTimeout(timeout);
+  useEffect(() => {
+    const id = setTimeout(() => doneRef.current?.(), 900);
+    return () => clearTimeout(id);
   }, []);
 
-  if (!visible) return null;
-
   return (
-    <div
-      className="floating-text"
-      style={{
-        left: x,
-        top: y
-      }}
-    >
+    <div className="floating-text" style={{ left: x, top: y }}>
       {text}
     </div>
   );

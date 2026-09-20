@@ -1,0 +1,79 @@
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.avatar-xl {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  color: #03211a;
+  font-size: 2rem;
+  font-weight: 800;
+  box-shadow: 0 8px 22px rgba(6, 214, 160, 0.25);
+}
+.profile-id { min-width: 0; flex: 1; }
+.profile-id h3 { font-size: 1.25rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #2b1f00;
+  background: linear-gradient(135deg, #ffd166, #f5b83d);
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+/* shared EXP bar (profile + end screen) */
+.exp-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+.exp-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+  transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.exp-caption { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+
+.stat-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 520px) { .stat-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.stat-tile {
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.stat-tile span { display: block; font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-tile strong { display: block; margin-top: 2px; font-size: 1.25rem; }
+.stat-tile small { color: var(--muted); }
+.stat-tile.record strong { font-size: 1.05rem; white-space: nowrap; }
+
+.todo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.todo-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.todo-row.attention { border-color: var(--gold); background: rgba(255, 209, 102, 0.07); }
+.todo-icon { font-size: 1.6rem; }
+.todo-row strong { display: block; }
+.todo-row .muted { font-size: 0.82rem; }
+
+.danger-zone { border-color: rgba(239, 71, 111, 0.35); }
+.button-row { display: flex; flex-wrap: wrap; gap: 10px; }

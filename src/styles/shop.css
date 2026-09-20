@@ -1,0 +1,35 @@
+.shop-balance { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
+  text-align: center;
+  transition: transform 0.15s ease, border-color 0.2s ease;
+}
+.shop-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.shop-icon { font-size: 2.3rem; line-height: 1; }
+.shop-name { font-weight: 800; }
+.shop-hint { font-size: 0.78rem; color: var(--muted); min-height: 2.9em; }
+.shop-owned { font-size: 0.8rem; color: var(--muted); }
+.shop-price { font-weight: 800; color: var(--gold); }
+.shop-actions { display: grid; gap: 8px; margin-top: auto; }
+.shop-actions .btn { width: 100%; }
+
+.empty-state {
+  padding: 28px 16px;
+  text-align: center;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border-strong);
+  color: var(--muted);
+}
+.empty-state .btn { margin-top: 12px; }

@@ -1,14 +1,13 @@
 import App from "./App";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./styles/global.css";
+import "./styles/theme.css";
+import "./styles/components.css";
 import "./styles/layout.css";
-import "./styles/farm.css";
-import "./styles/forest.css";
-import "./styles/mine.css";
-import "./styles/shed.css";
+import "./styles/plots.css";
+import "./styles/shop.css";
+import "./styles/profile.css";
 import "./styles/duel.css";
-import "./styles/ui.css";
 import { GameProvider } from "./context/GameContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

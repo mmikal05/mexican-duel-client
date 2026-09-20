@@ -1,27 +1,78 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
 import { useGame } from "../context/GameContext";
-import "../styles/duel.css";
 import useOnlineDuel from "../duel/useOnlineDuel";
 import useAIDuel from "../duel/useAIDuel";
-import FightView from "../duel/FightView";
+import { setMatchLocked } from "../duel/matchLock";
+import { playerName } from "../playerName";
+import HomeView from "../duel/HomeView";
 import LobbyView from "../duel/LobbyView";
-import { XP_REWARD } from "../duel/constants";
+import FightView from "../duel/FightView";
+import EndScreen from "../duel/EndScreen";
 
 export default function Duel() {
-  const { user, setExp } = useGame();
-  const [joinId, setJoinId] = useState("");
+  const {
+    user,
+    player,
+    setExp,
+    aiModel,
+    setAiModel,
+    stakeCoins,
+    settleCoins,
+    recordDuel,
+  } = useGame();
+
+  // One place applies everything a finished duel changes.
+  const applyResult = (summary) => {
+    if (summary.expGain > 0) setExp((prev) => prev + summary.expGain);
+
+    if (summary.mode === "online") {
+      if (summary.staked) settleCoins(summary.roomId, summary.payout);
+      if (summary.result !== "void") {
+        recordDuel({ mode: "online", result: summary.result, coinNet: summary.coinNet });
+      }
+    } else {
+      recordDuel({ mode: "ai", result: summary.result });
+    }
+  };
 
   const online = useOnlineDuel({
-    username: user.email,
-    onResult: (result) => setExp((prev) => prev + XP_REWARD[result]),
+    username: playerName(user.email),
+    wallet: { coins: player.coins, escrow: player.escrow, stake: stakeCoins },
+    onFinish: applyResult,
   });
-  const ai = useAIDuel();
+
+  const ai = useAIDuel({ model: aiModel, setModel: setAiModel, onFinish: applyResult });
+
+  // While a duel is running, keep the player from wandering off through the nav.
+  const inMatch =
+    (online.view === "fight" && !online.summary) || (ai.active && !ai.summary);
+  useEffect(() => {
+    setMatchLocked(inMatch);
+    return () => setMatchLocked(false);
+  }, [inMatch]);
+
+  /* ---------- what to show ---------- */
+
+  if (online.summary) {
+    return <EndScreen summary={online.summary} onClose={online.leave} />;
+  }
+
+  if (ai.summary) {
+    return <EndScreen summary={ai.summary} onClose={ai.exit} onPlayAgain={ai.start} />;
+  }
 
   if (online.view === "lobby") {
     return (
       <ScreenWrapper title="⚔️ Lobby">
-        <LobbyView {...online.lobby} onReady={online.readyUp} />
+        <LobbyView
+          {...online.lobby}
+          coins={player.coins}
+          onReady={online.readyUp}
+          onUnready={online.unready}
+          onLeave={online.leaveLobby}
+          onEmote={online.sendEmote}
+        />
       </ScreenWrapper>
     );
   }
@@ -29,51 +80,45 @@ export default function Duel() {
   if (online.view === "fight") {
     return (
       <ScreenWrapper title="⚔️ Duel">
-        <FightView {...online.fight} onPick={online.pick} onExit={online.leave} />
+        <FightView
+          mode="online"
+          {...online.fight}
+          onPick={online.pick}
+          onLock={online.lock}
+          onLeave={online.forfeit}
+          onEmote={online.sendEmote}
+        />
       </ScreenWrapper>
     );
   }
 
   if (ai.active) {
     return (
-      <ScreenWrapper title="⚔️ Duel vs AI">
-        <FightView {...ai.fight} onPick={ai.pick} onExit={ai.exit} />
+      <ScreenWrapper title="🧠 Practice">
+        <FightView
+          mode="ai"
+          {...ai.fight}
+          myName="You"
+          foeName="AI"
+          onPick={ai.pick}
+          onLock={ai.lock}
+          onLeave={ai.exit}
+        />
       </ScreenWrapper>
     );
   }
 
   return (
     <ScreenWrapper title="⚔️ Duel">
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "16px",
-          marginTop: "60px",
-        }}
-      >
-        {online.error && <div style={{ color: "#ff6b6b" }}>{online.error}</div>}
-
-        <button className="play-again-btn" onClick={ai.start}>
-          🧠 Play vs AI
-        </button>
-
-        <button className="play-again-btn" onClick={online.createLobby}>
-          🎯 Create Match
-        </button>
-
-        <input
-          type="text"
-          placeholder="Lobby ID"
-          value={joinId}
-          onChange={(e) => setJoinId(e.target.value)}
-        />
-
-        <button className="play-again-btn" onClick={() => online.joinLobby(joinId)}>
-          🚪 Join Match
-        </button>
-      </div>
+      <HomeView
+        coins={player.coins}
+        aiModel={aiModel}
+        error={online.error}
+        openLobbies={online.openLobbies}
+        onPlayAI={ai.start}
+        onCreate={online.createLobby}
+        onJoin={online.joinLobby}
+      />
     </ScreenWrapper>
   );
 }

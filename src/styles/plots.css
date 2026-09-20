@@ -1,0 +1,111 @@
+/* Farm / Forest / Mine / Shed: one shared look, each with its own accent colour. */
+
+.production { --accent: var(--teal); }
+
+.res-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.res-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.res-chip .res-icon { font-size: 1.15rem; }
+.res-chip.low { border-color: rgba(239, 71, 111, 0.6); color: #ff8fa8; }
+
+.bulk-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.bulk-actions .btn { flex: 1 1 140px; }
+
+.plot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.plot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 158px;
+  padding: 14px 10px 22px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
+  color: var(--text);
+  text-align: center;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.plot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120px 90px at 50% 30%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+.plot > * { position: relative; }
+.plot-icon { font-size: 2.4rem; line-height: 1; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)); }
+.plot-label { font-weight: 800; }
+.plot-hint { font-size: 0.8rem; color: var(--muted); }
+
+.plot:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+.plot:active:not(:disabled) { transform: scale(0.97); }
+.plot:disabled { cursor: default; }
+
+.plot-empty {
+  border-style: dashed;
+  border-color: var(--border-strong);
+}
+.plot-empty .plot-icon { opacity: 0.75; }
+
+.plot-busy { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.plot-busy .plot-hint { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 700; }
+
+.plot-ready {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 24px color-mix(in srgb, var(--accent) 32%, transparent);
+  animation: plot-glow 2s ease-in-out infinite;
+}
+.plot-ready .plot-hint { color: var(--accent); font-weight: 700; }
+
+.plot.is-blocked { opacity: 0.6; }
+.plot.is-blocked .plot-hint { color: #ff8fa8; }
+
+.plot-progress {
+  position: absolute !important;
+  left: 14px;
+  right: 14px;
+  bottom: 10px;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.plot-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  animation: plot-fill linear forwards;
+}
+
+.plot.pop { animation: plot-pop 0.3s ease; }
+
+@keyframes plot-fill { from { width: 0; } to { width: 100%; } }
+@keyframes plot-pop { 0% { transform: scale(1); } 50% { transform: scale(1.09); } 100% { transform: scale(1); } }
+@keyframes plot-glow {
+  0%, 100% { box-shadow: 0 0 0 1px var(--accent), 0 0 18px color-mix(in srgb, var(--accent) 24%, transparent); }
+  50% { box-shadow: 0 0 0 1px var(--accent), 0 0 30px color-mix(in srgb, var(--accent) 44%, transparent); }
+}

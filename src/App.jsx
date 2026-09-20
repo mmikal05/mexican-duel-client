@@ -8,21 +8,19 @@ import Login from "./screens/Login";
 function AppContent() {
   const { user, loading } = useGame();
   const [showInv, setShowInv] = useState(false);
+  const [screen, setScreen] = useState("profile");
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="loading-screen">Loading…</div>;
 
   if (!user) return <Login />;
 
   return (
     <>
-      <TopBar onOpenInventory={() => setShowInv(true)} />
+      <TopBar onOpenInventory={() => setShowInv(true)} onNavigate={setScreen} />
 
-      <InventoryPanel
-        open={showInv}
-        onClose={() => setShowInv(false)}
-      />
+      <InventoryPanel open={showInv} onClose={() => setShowInv(false)} />
 
-      <ScreenManager />
+      <ScreenManager screen={screen} onNavigate={setScreen} />
     </>
   );
 }

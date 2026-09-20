@@ -1,100 +1,134 @@
-import { useGame } from "../context/GameContext";
+import { useEffect, useRef, useState } from "react";
 import ScreenWrapper from "../components/ScreenWrapper";
+import { useGame } from "../context/GameContext";
+import { ITEMS, BUYABLE, SELLABLE } from "../config/items";
 
-const BUY_ITEMS = [
-  { key: "seeds", label: "Seeds", icon: "🌾", price: 2 },
-  { key: "axes", label: "Axe", icon: "🪓", price: 4 },
-  { key: "pickaxes", label: "Pickaxe", icon: "⛏️", price: 6 },
-  { key: "feed", label: "Feed", icon: "🐄", price: 8 },
-];
-
-// Placeholder prices: each is 50% above the cost of the item that produces it
-// (seed 2 -> wheat 3, axe 4 -> wood 6, pickaxe 6 -> gold 9, feed 8 -> leather 12).
-// Tune these once crafting and wagers exist.
-const SELL_ITEMS = [
-  { key: "wheat", label: "Wheat", icon: "🌽", price: 3 },
-  { key: "wood", label: "Wood", icon: "🌲", price: 6 },
-  { key: "gold", label: "Gold", icon: "🪙", price: 9 },
-  { key: "leather", label: "Leather", icon: "🧥", price: 12 },
-];
-
-export default function Shop() {
+export default function Shop({ onNavigate }) {
   const { player, setPlayer, inventory, setInventory } = useGame();
+  const [tab, setTab] = useState("buy");
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
 
-  const buyItem = (item) => {
-    if (player.coins < item.price) return;
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
 
-    setPlayer((prev) => ({ ...prev, coins: prev.coins - item.price }));
-    setInventory((prev) => ({ ...prev, [item.key]: prev[item.key] + 1 }));
+  const showToast = (text, tone = "") => {
+    clearTimeout(toastTimer.current);
+    setToast({ text, tone, id: Date.now() });
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
   };
 
-  const sellItem = (item, all = false) => {
-    const owned = inventory[item.key];
-    const amount = all ? owned : Math.min(1, owned);
-    if (amount <= 0) return;
+  const buy = (key, qty) => {
+    const item = ITEMS[key];
+    const cost = item.buy * qty;
+    if (player.coins < cost) return;
 
-    setInventory((prev) => ({ ...prev, [item.key]: prev[item.key] - amount }));
-    setPlayer((prev) => ({ ...prev, coins: prev.coins + amount * item.price }));
+    setPlayer((prev) => ({ ...prev, coins: prev.coins - cost }));
+    setInventory((prev) => ({ ...prev, [key]: prev[key] + qty }));
+    showToast(`Bought ${qty} × ${item.label} · −${cost} coins`);
   };
+
+  const sell = (key, all) => {
+    const owned = inventory[key];
+    const qty = all ? owned : Math.min(1, owned);
+    if (qty <= 0) return;
+
+    const item = ITEMS[key];
+    const earned = qty * item.sell;
+    setInventory((prev) => ({ ...prev, [key]: prev[key] - qty }));
+    setPlayer((prev) => ({ ...prev, coins: prev.coins + earned }));
+    showToast(`Sold ${qty} × ${item.label} · +${earned} coins`, "good");
+  };
+
+  const sellable = SELLABLE.reduce((n, key) => n + inventory[key], 0);
+  const sellableWorth = SELLABLE.reduce((n, key) => n + inventory[key] * ITEMS[key].sell, 0);
 
   return (
-    <ScreenWrapper title="🛒 Shop">
-      <div className="shop-container">
-        <h4 className="shop-category">Tools & Supplies</h4>
+    <ScreenWrapper title="🛒 Shop" subtitle="Buy supplies to produce resources, then sell what you make.">
+      <div className="shop-balance">
+        <span className="stat-pill">💰 {player.coins} coins</span>
+        {sellable > 0 && <span className="muted small">Your resources are worth 💰 {sellableWorth}</span>}
+      </div>
 
+      <div className="segmented" role="tablist" aria-label="Shop sections">
+        <button role="tab" aria-selected={tab === "buy"} onClick={() => setTab("buy")}>
+          Buy
+        </button>
+        <button role="tab" aria-selected={tab === "sell"} onClick={() => setTab("sell")}>
+          Sell{sellable > 0 ? ` (${sellable})` : ""}
+        </button>
+      </div>
+
+      {tab === "buy" && (
         <div className="shop-grid">
-          {BUY_ITEMS.map((item) => (
-            <div className="shop-card" key={item.key}>
-              <div className="shop-icon">{item.icon}</div>
-              <div className="shop-name">{item.label}</div>
-              <div className="shop-count">Owned: {inventory[item.key]}</div>
-              <div className="shop-price">💰 {item.price} Coins</div>
-
-              <button
-                className="shop-btn"
-                disabled={player.coins < item.price}
-                onClick={() => buyItem(item)}
-              >
-                {player.coins < item.price ? "Not Enough" : "Buy"}
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <h4 className="shop-category">Sell Resources</h4>
-
-        <div className="shop-grid">
-          {SELL_ITEMS.map((item) => {
-            const owned = inventory[item.key];
+          {BUYABLE.map((key) => {
+            const item = ITEMS[key];
+            const canOne = player.coins >= item.buy;
+            const canFive = player.coins >= item.buy * 5;
 
             return (
-              <div className="shop-card" key={item.key}>
+              <div className="shop-card" key={key}>
                 <div className="shop-icon">{item.icon}</div>
                 <div className="shop-name">{item.label}</div>
-                <div className="shop-count">Owned: {owned}</div>
-                <div className="shop-price">💰 {item.price} Coins each</div>
-
-                <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                  <button
-                    className="shop-btn"
-                    disabled={owned <= 0}
-                    onClick={() => sellItem(item)}
-                  >
-                    Sell
+                <div className="shop-hint">{item.hint}</div>
+                <div className="shop-owned">You have {inventory[key]}</div>
+                <div className="shop-price">💰 {item.buy} each</div>
+                <div className="shop-actions">
+                  <button className="btn btn-primary btn-sm" disabled={!canOne} onClick={() => buy(key, 1)}>
+                    {canOne ? "Buy 1" : "Not enough coins"}
                   </button>
-                  <button
-                    className="shop-btn"
-                    disabled={owned <= 0}
-                    onClick={() => sellItem(item, true)}
-                  >
-                    Sell All
+                  <button className="btn btn-secondary btn-sm" disabled={!canFive} onClick={() => buy(key, 5)}>
+                    Buy 5 · 💰 {item.buy * 5}
                   </button>
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
+      )}
+
+      {tab === "sell" &&
+        (sellable === 0 ? (
+          <div className="empty-state">
+            <p>Nothing to sell yet.</p>
+            <p className="small">Wheat, wood, gold and leather show up here once you produce them.</p>
+            {onNavigate && (
+              <button className="btn btn-primary" onClick={() => onNavigate("farm")}>
+                Go to the Farm
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="shop-grid">
+            {SELLABLE.map((key) => {
+              const item = ITEMS[key];
+              const owned = inventory[key];
+
+              return (
+                <div className="shop-card" key={key}>
+                  <div className="shop-icon">{item.icon}</div>
+                  <div className="shop-name">{item.label}</div>
+                  <div className="shop-hint">{item.hint}</div>
+                  <div className="shop-owned">You have {owned}</div>
+                  <div className="shop-price">💰 {item.sell} each</div>
+                  <div className="shop-actions">
+                    <button className="btn btn-primary btn-sm" disabled={owned <= 0} onClick={() => sell(key, false)}>
+                      Sell 1 · +{item.sell}
+                    </button>
+                    <button className="btn btn-secondary btn-sm" disabled={owned <= 0} onClick={() => sell(key, true)}>
+                      Sell all{owned > 0 ? ` · +${owned * item.sell}` : ""}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+
+      {toast && (
+        <div key={toast.id} className={`toast ${toast.tone}`} role="status">
+          {toast.text}
+        </div>
+      )}
     </ScreenWrapper>
   );
 }
