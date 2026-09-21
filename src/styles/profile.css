@@ -43,7 +43,10 @@
   border-radius: 6px;
   background: linear-gradient(90deg, var(--teal), var(--gold));
   transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* start at 0 on first paint so the bar animates in rather than jumping */
+  animation: exp-enter 0.1s ease forwards;
 }
+@keyframes exp-enter { from { opacity: 0; } to { opacity: 1; } }
 .exp-caption { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
 
 .stat-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

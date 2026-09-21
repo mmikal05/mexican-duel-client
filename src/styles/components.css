@@ -115,6 +115,11 @@
   background: var(--bg-2);
   color: var(--text);
   text-align: center;
+  transition: border-color 0.15s ease;
+}
+.chip-input.over-max {
+  border-color: var(--red);
+  color: var(--red);
 }
 
 /* ---------- inputs ---------- */
@@ -250,6 +255,401 @@
 }
 .toast.good { color: var(--green); border-color: rgba(74, 222, 128, 0.5); }
 .toast.bad { color: var(--red); border-color: rgba(248, 113, 113, 0.5); }
+.pill-bad {
+  color: var(--red);
+  border-color: rgba(239, 71, 111, 0.45);
+  background: rgba(239, 71, 111, 0.1);
+}
+
+/* ---------- Tier & Stat Badges ---------- */
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tier-1 {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+.tier-2 {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+.tier-3 {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+}
+
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: #67e8f9;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.stat-pill-sm {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---------- Workshop & Crafting ---------- */
+.craft-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.craft-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(165deg, var(--surface-2), var(--surface));
+  transition: transform 0.15s ease, border-color 0.2s ease;
+}
+.craft-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+.craft-card.owned {
+  border-color: rgba(251, 191, 36, 0.35);
+  background: linear-gradient(165deg, rgba(251, 191, 36, 0.05), var(--surface));
+}
+.craft-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.craft-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+.craft-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.craft-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0;
+}
+.craft-desc {
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.35;
+  margin: 0;
+}
+.gear-stat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.craft-recipe {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-2);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.recipe-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.recipe-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.craft-actions {
+  margin-top: auto;
+  padding-top: 4px;
+}
+.owned-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* ---------- Armoury Loadout & Stats ---------- */
+.loadout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.loadout-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  border: 1px dashed var(--border-strong);
+  min-height: 105px;
+  transition: 0.15s ease;
+}
+.loadout-slot.filled {
+  border: 1px solid rgba(6, 214, 160, 0.4);
+  background: linear-gradient(160deg, rgba(6, 214, 160, 0.08), var(--bg-2));
+}
+.slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.slot-unequip {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-3);
+  color: var(--muted);
+  font-size: 0.7rem;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: 0.15s ease;
+}
+.slot-unequip:hover {
+  color: var(--red);
+  border-color: var(--red);
+}
+.slot-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.slot-item-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.slot-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.slot-item-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+.slot-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.slot-empty-text {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  text-align: center;
+}
+
+.combat-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 500px) {
+  .combat-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.combat-stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+}
+.c-stat-label {
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.c-stat-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.c-stat-val .good {
+  color: var(--green);
+  font-size: 0.82rem;
+}
+
+/* ---------- Wardrobe List ---------- */
+.wardrobe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wardrobe-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  transition: 0.15s ease;
+}
+.wardrobe-row.is-equipped {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.08), var(--bg-2));
+}
+.wardrobe-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.wardrobe-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.wardrobe-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wardrobe-stats {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* ---------- Marketplace ---------- */
+.market-balance-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.market-balance-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  min-width: 90px;
+}
+.market-dc {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+.market-earn-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+.market-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.market-filter-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-3);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: 0.15s;
+  cursor: pointer;
+}
+.market-filter-btn:hover { border-color: var(--gold); }
+.market-filter-btn.active {
+  color: #2b1f00;
+  background: linear-gradient(135deg, #ffd166, #f5b83d);
+  border-color: transparent;
+}
+.market-listings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.market-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.market-row:hover { border-color: var(--border-strong); }
+.market-res-icon { font-size: 1.8rem; line-height: 1; }
+.market-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.market-resource-name { font-weight: 800; font-size: 0.95rem; }
+.market-qty { font-size: 0.95rem; font-weight: 700; color: var(--muted); }
+.market-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 60px;
+}
+.market-price strong { color: var(--gold); font-size: 1rem; }
+.market-price-solo { color: var(--gold); font-size: 1rem; min-width: 60px; text-align: right; }
+.market-list-form .market-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.market-list-form .market-form-row:first-of-type { grid-template-columns: 1fr; }
+.market-select {
+  text-transform: none;
+  letter-spacing: 0;
+}
 
 /* ---------- floating "+1 Wheat" text ---------- */
 .floating-text {
@@ -271,3 +671,5 @@
   0% { opacity: 1; transform: translate(-50%, 0); }
   100% { opacity: 0; transform: translate(-50%, -46px); }
 }
+.tier-4 { color:#fb923c; background:rgba(251,146,60,0.14); border:1px solid rgba(251,146,60,0.55); box-shadow:0 0 12px rgba(251,146,60,0.25); }
+.tier-5 { color:#f472b6; background:rgba(244,114,182,0.14); border:1px solid rgba(244,114,182,0.55); box-shadow:0 0 14px rgba(244,114,182,0.3); }

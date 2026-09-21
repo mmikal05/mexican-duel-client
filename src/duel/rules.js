@@ -1,12 +1,25 @@
 import { XP_AI, WAGER_FEE_RATE } from "./constants";
 
-// Same base rules as the server (resolve() in server/index.js). No gear or
-// skills: both sides always fight with identical stats.
-export function resolveAttack(attack, targetDefense, random = Math.random) {
+// Resolves one attack vs target defense with optional stat modifiers from equipped gear.
+export function resolveAttack(
+  attack,
+  targetDefense,
+  random = Math.random,
+  attackerStats = {},
+  defenderStats = {}
+) {
   if (!attack) return { damage: 0, type: "miss", attack: null };
-  if (attack === targetDefense) return { damage: 5, type: "block", attack };
-  if (random() < 0.2) return { damage: 20, type: "crit", attack };
-  return { damage: 10, type: "hit", attack };
+  const baseAttack = attackerStats.attack ?? 10;
+  const critChance = attackerStats.critChance ?? 0.2;
+  const blockDmg = defenderStats.blockDamage ?? 5;
+
+  if (attack === targetDefense) {
+    return { damage: blockDmg, type: "block", attack };
+  }
+  if (random() < critChance) {
+    return { damage: Math.round(baseAttack * 2), type: "crit", attack };
+  }
+  return { damage: baseAttack, type: "hit", attack };
 }
 
 export const describeAttack = (who, r) =>

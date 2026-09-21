@@ -148,6 +148,17 @@
   color: var(--text);
   background: var(--surface-3);
 }
+.nav-btn[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--teal);
+}
 .nav-btn[aria-current="page"] .nav-icon { transform: translateY(-1px) scale(1.08); }
 .nav-btn:disabled { opacity: 0.35; }
 .nav-badge {

@@ -320,9 +320,9 @@ export default function useOnlineDuel({ username, wallet, onFinish }) {
 
     const onNoActiveMatch = () => {
       // Nothing on the server for us. If we were holding a stake for a duel the
-      // server has forgotten (e.g. it restarted), give it back.
+      // server has forgotten (e.g. it restarted), give it back — but only once.
       const w = walletRef.current;
-      if (w.escrow) {
+      if (w.escrow && !wasSettled(w.escrow.roomId)) {
         markSettled(w.escrow.roomId);
         onFinishRef.current?.({
           roomId: w.escrow.roomId,

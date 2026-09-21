@@ -7,13 +7,15 @@ import { playerName } from "../playerName";
 import { describeHabits } from "../duel/aiBrain";
 import { ITEMS } from "../config/items";
 import { PRODUCTION_LIST, plotState, readyCount } from "../config/production";
+import { formatTime } from "../hooks/formatTime";
 
 // One line per production screen: what needs the player's attention?
 function todoFor(config, game) {
+  const now = Date.now();
   const plots = game[config.plotsKey];
   const supplyCount = game.inventory[config.supply];
-  const states = plots.map((p) => plotState(config, p));
-  const ready = readyCount(config, plots, supplyCount);
+  const states = plots.map((p) => plotState(config, p, now));
+  const ready = readyCount(config, plots, supplyCount, now);
   const busy = states.filter((s) => s === "busy").length;
   const grow = config.mode === "grow";
   const supply = ITEMS[config.supply];
@@ -28,14 +30,21 @@ function todoFor(config, game) {
   if (grow && supplyCount > 0 && states.includes("empty")) {
     return { text: `${states.filter((s) => s === "empty").length} empty · ${supplyCount} ${supply.label.toLowerCase()} to use`, attention: true };
   }
-  if (busy > 0) return { text: `${busy} working…`, attention: false };
+  if (busy > 0) {
+    // Find the soonest finishing plot to give a useful ETA.
+    const soonest = plots
+      .filter((p) => p?.endTime && plotState(config, p, now) === "busy")
+      .reduce((min, p) => (p.endTime < min ? p.endTime : min), Infinity);
+    const eta = soonest < Infinity ? ` · done in ${formatTime(soonest - now)}` : "";
+    return { text: `${busy} working…${eta}`, attention: false };
+  }
   if (supplyCount <= 0) return { text: `Out of ${supply.label.toLowerCase()}`, attention: false };
   return { text: "Idle", attention: false };
 }
 
 export default function Profile({ onNavigate }) {
   const game = useGame();
-  const { user, player, exp, duelStats, aiModel, resetGame, resetAiModel, logout } = game;
+  const { user, player, exp, duelStats, duelCoins, aiModel, resetGame, resetAiModel, logout } = game;
   const [confirm, setConfirm] = useState(null); // "reset" | "ai" | null
 
   const level = getLevelInfo(exp);
@@ -83,6 +92,11 @@ export default function Profile({ onNavigate }) {
             <span>Coins</span>
             <strong>💰 {player.coins}</strong>
             {player.escrow && <small>+{player.escrow.amount} staked</small>}
+          </div>
+          <div className="stat-tile">
+            <span>DUEL COIN</span>
+            <strong style={{ color: "var(--gold)" }}>🪙 {duelCoins} DC</strong>
+            <small>Earn by winning duels</small>
           </div>
           <div className="stat-tile">
             <span>Total EXP</span>

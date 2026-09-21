@@ -4,6 +4,7 @@ import Mine from "../screens/Mine";
 import Shed from "../screens/Shed";
 import Workshop from "../screens/Workshop";
 import Armoury from "../screens/Armoury";
+import Marketplace from "../screens/Marketplace";
 import Duel from "../screens/Duel";
 import Profile from "../screens/Profile";
 import Shop from "../screens/Shop";
@@ -24,6 +25,7 @@ const SCREENS = {
   duel: Duel,
   workshop: Workshop,
   armoury: Armoury,
+  marketplace: Marketplace,
 };
 
 // `screen` / `onNavigate` come from App so the top bar can navigate too.

@@ -17,7 +17,10 @@ export default function Shop({ onNavigate }) {
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   };
 
+  const lockedByEscrow = !!player.escrow;
+
   const buy = (key, qty) => {
+    if (lockedByEscrow) return;
     const item = ITEMS[key];
     const cost = item.buy * qty;
     if (player.coins < cost) return;
@@ -60,6 +63,11 @@ export default function Shop({ onNavigate }) {
 
       {tab === "buy" && (
         <div className="shop-grid">
+          {lockedByEscrow && (
+            <div className="notice notice-error">
+              You have coins staked in a duel — buying is locked.
+            </div>
+          )}
           {BUYABLE.map((key) => {
             const item = ITEMS[key];
             const canOne = player.coins >= item.buy;

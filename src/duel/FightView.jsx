@@ -21,7 +21,7 @@ const ZONE_BY_PART = Object.fromEntries(ZONES.map((z) => [z.part, z]));
 
 const FEEDBACK_LABEL = { hit: "Hit", crit: "Crit!", block: "Blocked", miss: "Miss" };
 
-function HpBar({ side, name, hp, emote }) {
+function HpBar({ side, name, hp, maxHp = MAX_HP, emote }) {
   const previous = useRef(hp);
   const [loss, setLoss] = useState(null);
 
@@ -36,7 +36,7 @@ function HpBar({ side, name, hp, emote }) {
     previous.current = hp;
   }, [hp]);
 
-  const pct = Math.max(0, Math.min(100, (hp / MAX_HP) * 100));
+  const pct = Math.max(0, Math.min(100, (hp / maxHp) * 100));
 
   return (
     <div className={`hp hp-${side}`}>
@@ -47,7 +47,7 @@ function HpBar({ side, name, hp, emote }) {
       <div className="hp-track">
         <div className="hp-fill" style={{ width: `${pct}%` }} />
         <span className="hp-text">
-          {hp} / {MAX_HP}
+          {hp} / {maxHp}
         </span>
         {loss && (
           <span key={loss.id} className="hp-loss">
@@ -105,6 +105,7 @@ export default function FightView({
   status,
   playerHP,
   enemyHP,
+  playerMaxHp = MAX_HP,
   selection,
   feedback,
   log,
@@ -124,9 +125,12 @@ export default function FightView({
 
   const canPick = roundActive && !lockedMe;
   const canLock = canPick && selection.attack && selection.defense;
+  const bothLocked = lockedMe && lockedFoe;
+  const urgent = secondsLeft != null && secondsLeft <= 3 && roundActive;
 
   let lockLabel = "Lock in";
-  if (lockedMe) lockLabel = "🔒 Locked in";
+  if (lockedMe && lockedFoe) lockLabel = "⚡ Resolving…";
+  else if (lockedMe) lockLabel = "🔒 Locked in";
   else if (!roundActive) lockLabel = "Next round…";
   else if (!selection.attack || !selection.defense) lockLabel = "Pick attack & defense";
 
@@ -142,7 +146,7 @@ export default function FightView({
       <div className="fight-top">
         <span className="chip">Round {round || 1}</span>
         {wager > 0 && <span className="chip chip-gold">💰 Pot {wager * 2}</span>}
-        <span className="timer" aria-live="off">
+        <span className={`timer${urgent ? " urgent" : ""}`} aria-live="off">
           ⏱ {secondsLeft != null ? `${secondsLeft}s` : "–"}
         </span>
       </div>
@@ -158,7 +162,7 @@ export default function FightView({
       )}
 
       <div className="hp-row">
-        <HpBar side="player" name={myName} hp={playerHP} emote={emotes?.me} />
+        <HpBar side="player" name={myName} hp={playerHP} maxHp={playerMaxHp} emote={emotes?.me} />
         <HpBar side="enemy" name={foeName} hp={enemyHP} emote={emotes?.foe} />
       </div>
 
@@ -182,7 +186,11 @@ export default function FightView({
       </div>
 
       <div className="fight-actions">
-        <button className="btn btn-primary btn-lock" disabled={!canLock} onClick={onLock}>
+        <button
+          className={`btn btn-lock ${bothLocked ? "btn-gold" : "btn-primary"}`}
+          disabled={!canLock && !lockedMe}
+          onClick={onLock}
+        >
           {lockLabel}
         </button>
         {lockedFoe && !lockedMe && <span className="chip chip-green">{foeName} locked in</span>}

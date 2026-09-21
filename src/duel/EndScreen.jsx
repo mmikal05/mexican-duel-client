@@ -137,7 +137,12 @@ export default function EndScreen({ summary, onClose, onPlayAgain }) {
               Play again
             </button>
           )}
-          <button className={`btn ${isAI ? "btn-secondary" : "btn-primary"}`} onClick={onClose}>
+          {!isAI && onPlayAgain && (
+            <button className="btn btn-primary" onClick={onPlayAgain}>
+              Rematch
+            </button>
+          )}
+          <button className={`btn ${isAI || onPlayAgain ? "btn-secondary" : "btn-primary"}`} onClick={onClose}>
             Back to menu
           </button>
         </div>

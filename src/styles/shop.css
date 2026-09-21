@@ -21,6 +21,7 @@
 .shop-name { font-weight: 800; }
 .shop-hint { font-size: 0.78rem; color: var(--muted); min-height: 2.9em; }
 .shop-owned { font-size: 0.8rem; color: var(--muted); }
+.shop-owned.flash { animation: coin-flash 0.5s ease; }
 .shop-price { font-weight: 800; color: var(--gold); }
 .shop-actions { display: grid; gap: 8px; margin-top: auto; }
 .shop-actions .btn { width: 100%; }

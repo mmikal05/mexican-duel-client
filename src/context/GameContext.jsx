@@ -1,17 +1,29 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { auth, db } from "../firebase";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { createModel, sanitizeModel } from "../duel/aiBrain";
+import { SUPPLY_RECIPES } from "../config/crafting";
+import { GEAR_ITEMS } from "../config/equipment";
+import { calculatePlayerStats } from "../config/stats";
+import { getLevelInfo } from "../progression";
 
 const GameContext = createContext();
 
 const PLOT_COUNT = 4;
 
+const createDefaultEquipped = () => ({
+  head: null,
+  chest: null,
+  weapon: null,
+  accessory: null,
+});
+
 // Single source of truth for a brand-new player.
 const createDefaultState = () => ({
   exp: 0,
   coins: 100,
+  duelCoins: 0,
   escrow: null, // coins currently staked in a running wager duel: { roomId, amount }
   inventory: {
     seeds: 0,
@@ -23,6 +35,8 @@ const createDefaultState = () => ({
     feed: 0,
     leather: 0,
   },
+  gear: [], // array of owned gear IDs (e.g. ["straw_sombrero", "rusty_machete"])
+  equipped: createDefaultEquipped(),
   farmPlots: Array(PLOT_COUNT).fill(null),
   forestPlots: Array.from({ length: PLOT_COUNT }, () => ({ ready: true })),
   minePlots: Array.from({ length: PLOT_COUNT }, () => ({ ready: true })),
@@ -47,7 +61,10 @@ export const GameProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [exp, setExp] = useState(defaults.exp);
   const [player, setPlayer] = useState({ coins: defaults.coins, escrow: defaults.escrow });
+  const [duelCoins, setDuelCoins] = useState(defaults.duelCoins);
   const [inventory, setInventory] = useState(defaults.inventory);
+  const [gear, setGear] = useState(defaults.gear);
+  const [equipped, setEquipped] = useState(defaults.equipped);
   const [farmPlots, setFarmPlots] = useState(defaults.farmPlots);
   const [forestPlots, setForestPlots] = useState(defaults.forestPlots);
   const [minePlots, setMinePlots] = useState(defaults.minePlots);
@@ -55,10 +72,15 @@ export const GameProvider = ({ children }) => {
   const [duelStats, setDuelStats] = useState(defaults.duelStats);
   const [aiModel, setAiModel] = useState(defaults.aiModel);
 
+  const playerStats = useMemo(() => calculatePlayerStats(equipped), [equipped]);
+
   const applyState = (s) => {
     setExp(s.exp);
     setPlayer({ coins: s.coins, escrow: s.escrow });
+    setDuelCoins(s.duelCoins);
     setInventory(s.inventory);
+    setGear(s.gear);
+    setEquipped(s.equipped);
     setFarmPlots(s.farmPlots);
     setForestPlots(s.forestPlots);
     setMinePlots(s.minePlots);
@@ -77,11 +99,12 @@ export const GameProvider = ({ children }) => {
 
       applyState({
         exp: data.exp ?? fresh.exp,
-        // "??" instead of "||" so a balance of 0 is not reset to 100
         coins: data.coins ?? fresh.coins,
+        duelCoins: data.duelCoins ?? 0,
         escrow: data.escrow ?? null,
-        // merge so missing keys (older or partial saves) never become NaN
         inventory: { ...fresh.inventory, ...data.inventory },
+        gear: Array.isArray(data.gear) ? data.gear : fresh.gear,
+        equipped: { ...fresh.equipped, ...(data.equipped || {}) },
         farmPlots: data.farmPlots ?? fresh.farmPlots,
         forestPlots: data.forestPlots ?? fresh.forestPlots,
         minePlots: data.minePlots ?? fresh.minePlots,
@@ -107,7 +130,10 @@ export const GameProvider = ({ children }) => {
         exp,
         coins: player.coins,
         escrow: player.escrow ?? null,
+        duelCoins,
         inventory,
+        gear,
+        equipped,
         farmPlots,
         forestPlots,
         minePlots,
@@ -143,13 +169,85 @@ export const GameProvider = ({ children }) => {
   useEffect(() => {
     if (!user) return;
     saveToFirebase();
-  }, [exp, player, inventory, farmPlots, forestPlots, minePlots, shedPlots, duelStats, aiModel, user]);
+  }, [exp, player, inventory, gear, equipped, farmPlots, forestPlots, minePlots, shedPlots, duelStats, aiModel, user, duelCoins]);
+
+  /* ---------- crafting & equipment helpers ---------- */
+
+  const craftSupply = (recipeId) => {
+    const recipe = SUPPLY_RECIPES.find((r) => r.id === recipeId);
+    if (!recipe) return false;
+
+    // Check costs
+    for (const [resKey, amount] of Object.entries(recipe.inputs)) {
+      if ((inventory[resKey] || 0) < amount) return false;
+    }
+
+    setInventory((prev) => {
+      const next = { ...prev };
+      for (const [resKey, amount] of Object.entries(recipe.inputs)) {
+        next[resKey] = Math.max(0, (next[resKey] || 0) - amount);
+      }
+      next[recipe.output.key] = (next[recipe.output.key] || 0) + recipe.output.qty;
+      return next;
+    });
+    return true;
+  };
+
+  const craftGear = (gearId) => {
+    const item = GEAR_ITEMS[gearId];
+    if (!item) return false;
+    if (gear.includes(gearId)) return false; // already owned
+
+    // Level gate
+    if (item.levelRequired && getLevelInfo(exp).level < item.levelRequired) return false;
+
+    // Upgrade prerequisite: must own the tier below
+    if (item.upgrades && !gear.includes(item.upgrades)) return false;
+
+    for (const [resKey, amount] of Object.entries(item.recipe)) {
+      if ((inventory[resKey] || 0) < amount) return false;
+    }
+
+    setInventory((prev) => {
+      const next = { ...prev };
+      for (const [resKey, amount] of Object.entries(item.recipe)) {
+        next[resKey] = Math.max(0, (next[resKey] || 0) - amount);
+      }
+      return next;
+    });
+
+    setGear((prev) => {
+      // Consume the prerequisite item (upgrade path)
+      const next = item.upgrades ? prev.filter((id) => id !== item.upgrades) : [...prev];
+      return [...next, gearId];
+    });
+
+    // Unequip consumed prerequisite, then auto-equip new item if slot is free
+    setEquipped((prev) => {
+      let next = { ...prev };
+      if (item.upgrades) {
+        const prereq = GEAR_ITEMS[item.upgrades];
+        if (prereq && next[prereq.slot] === item.upgrades) next[prereq.slot] = null;
+      }
+      if (!next[item.slot]) next = { ...next, [item.slot]: gearId };
+      return next;
+    });
+
+    return true;
+  };
+
+  const equipGear = (gearId) => {
+    const item = GEAR_ITEMS[gearId];
+    if (!item || !gear.includes(gearId)) return;
+    setEquipped((prev) => ({ ...prev, [item.slot]: gearId }));
+  };
+
+  const unequipGear = (slot) => {
+    setEquipped((prev) => ({ ...prev, [slot]: null }));
+  };
 
   /* ---------- wager helpers (used by online duels) ---------- */
 
-  // Take the stake out of the wallet and remember it, so it can be paid back
-  // after a refresh or a lost connection. Does nothing if the player can't
-  // afford it or already has a stake in a different duel.
   const stakeCoins = (roomId, amount) =>
     setPlayer((prev) =>
       prev.escrow || prev.coins < amount
@@ -157,7 +255,6 @@ export const GameProvider = ({ children }) => {
         : { coins: prev.coins - amount, escrow: { roomId, amount } }
     );
 
-  // Pay out (or refund) the stake of that duel. Ignored if it was already settled.
   const settleCoins = (roomId, payout) =>
     setPlayer((prev) =>
       prev.escrow?.roomId === roomId
@@ -165,7 +262,6 @@ export const GameProvider = ({ children }) => {
         : prev
     );
 
-  // Keep the win/loss record; `coinNet` is coins gained (+) or lost (-) on the wager.
   const recordDuel = ({ mode, result, coinNet = 0 }) =>
     setDuelStats((prev) => {
       const next = { ...prev };
@@ -212,6 +308,13 @@ export const GameProvider = ({ children }) => {
         setPlayer,
         inventory,
         setInventory,
+        gear,
+        equipped,
+        playerStats,
+        craftSupply,
+        craftGear,
+        equipGear,
+        unequipGear,
         farmPlots,
         setFarmPlots,
         forestPlots,
@@ -231,6 +334,8 @@ export const GameProvider = ({ children }) => {
         settleCoins,
         resetGame,
         logout,
+        duelCoins,
+        setDuelCoins,
       }}
     >
       {children}

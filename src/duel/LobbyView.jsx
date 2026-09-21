@@ -66,6 +66,16 @@ export default function LobbyView({
   else if (full && ready) hint = "Waiting for your opponent to get ready…";
   else if (full) hint = "Press Ready when you are set.";
 
+  // Drive the timer bar with a CSS animation seeded from the remaining time,
+  // so it drains smoothly without stepping every second.
+  const totalMs = ttl;
+  const remainingMs = endsAt ? Math.max(0, endsAt - Date.now()) : 0;
+  const startPct = totalMs > 0 ? (remainingMs / totalMs) * 100 : 0;
+  const timerBarStyle = {
+    width: `${startPct}%`,
+    animationDuration: `${remainingMs}ms`,
+  };
+
   return (
     <div className="lobby">
       <section className="card lobby-code">
@@ -78,10 +88,7 @@ export default function LobbyView({
         </div>
         {secondsLeft != null && (
           <div className="lobby-timer">
-            <div
-              className="lobby-timer-fill"
-              style={{ width: `${Math.min(100, (secondsLeft / Math.max(1, ttl / 1000)) * 100)}%` }}
-            />
+            <div className="lobby-timer-fill" style={timerBarStyle} />
             <span>Lobby closes in {clock(secondsLeft)}</span>
           </div>
         )}

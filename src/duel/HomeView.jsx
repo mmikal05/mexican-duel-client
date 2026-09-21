@@ -5,16 +5,25 @@ import { describeHabits } from "./aiBrain";
 
 function WagerPicker({ coins, value, onChange }) {
   const [custom, setCustom] = useState("");
+  const [overMax, setOverMax] = useState(false);
 
   const choose = (amount) => {
     setCustom("");
+    setOverMax(false);
     onChange(amount);
   };
 
   const onCustom = (e) => {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
-    setCustom(digits);
-    if (digits) onChange(Math.min(Number(digits), MAX_WAGER));
+    const raw = e.target.value.replace(/\D/g, "");
+    setCustom(raw);
+    const num = Number(raw);
+    if (num > MAX_WAGER) {
+      setOverMax(true);
+      onChange(MAX_WAGER);
+    } else {
+      setOverMax(false);
+      onChange(num);
+    }
   };
 
   return (
@@ -36,7 +45,7 @@ function WagerPicker({ coins, value, onChange }) {
           );
         })}
         <input
-          className="chip-input"
+          className={`chip-input ${overMax ? "over-max" : ""}`}
           inputMode="numeric"
           placeholder="Custom"
           value={custom}
@@ -45,6 +54,7 @@ function WagerPicker({ coins, value, onChange }) {
         />
       </div>
       <p className="muted small">
+        {overMax && <span className="bad block mb-1">Max wager is {MAX_WAGER} coins.</span>}
         {value === 0
           ? "No coins at stake. Just for the EXP."
           : `Each player stakes ${value} coins. The winner takes ${wagerBreakdown(value).winnerGets} (10% fee).`}

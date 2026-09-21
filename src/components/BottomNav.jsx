@@ -1,10 +1,12 @@
-// Workshop and Armoury are left out until those pages exist.
 export const NAV_ITEMS = [
   { id: "profile", icon: "👤", label: "Profile" },
   { id: "farm", icon: "🌾", label: "Farm" },
   { id: "forest", icon: "🌲", label: "Forest" },
   { id: "mine", icon: "⛏️", label: "Mine" },
   { id: "shed", icon: "🐄", label: "Shed" },
+  { id: "workshop", icon: "🔨", label: "Workshop" },
+  { id: "armoury", icon: "🛡️", label: "Armoury" },
+  { id: "marketplace", icon: "🏪", label: "Market" },
   { id: "shop", icon: "🛒", label: "Shop" },
   { id: "duel", icon: "⚔️", label: "Duel" },
 ];

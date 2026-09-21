@@ -20,6 +20,8 @@ export default function Duel() {
     stakeCoins,
     settleCoins,
     recordDuel,
+    playerStats,
+    setDuelCoins,
   } = useGame();
 
   // One place applies everything a finished duel changes.
@@ -31,6 +33,7 @@ export default function Duel() {
       if (summary.result !== "void") {
         recordDuel({ mode: "online", result: summary.result, coinNet: summary.coinNet });
       }
+      if (summary.result === "win") setDuelCoins((prev) => prev + 1);
     } else {
       recordDuel({ mode: "ai", result: summary.result });
     }
@@ -42,7 +45,7 @@ export default function Duel() {
     onFinish: applyResult,
   });
 
-  const ai = useAIDuel({ model: aiModel, setModel: setAiModel, onFinish: applyResult });
+  const ai = useAIDuel({ model: aiModel, setModel: setAiModel, onFinish: applyResult, playerStats });
 
   // While a duel is running, keep the player from wandering off through the nav.
   const inMatch =
@@ -55,7 +58,10 @@ export default function Duel() {
   /* ---------- what to show ---------- */
 
   if (online.summary) {
-    return <EndScreen summary={online.summary} onClose={online.leave} />;
+    const rematch = online.summary.result !== "void"
+      ? () => { online.leave(); online.createLobby(online.summary.wager); }
+      : null;
+    return <EndScreen summary={online.summary} onClose={online.leave} onPlayAgain={rematch} />;
   }
 
   if (ai.summary) {
@@ -98,6 +104,7 @@ export default function Duel() {
         <FightView
           mode="ai"
           {...ai.fight}
+          playerMaxHp={playerStats.maxHp}
           myName="You"
           foeName="AI"
           onPick={ai.pick}

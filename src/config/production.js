@@ -20,7 +20,7 @@ export const PRODUCTION = {
     mode: "grow",
     supply: "seeds",
     output: "wheat",
-    duration: 10000,
+    duration: 12000,
     subtitle: "Plant seeds, wait for them to grow, then harvest wheat.",
     verbs: { start: "Plant", collect: "Harvest", startAll: "Plant all", collectAll: "Harvest all" },
     tiles: {
@@ -38,7 +38,7 @@ export const PRODUCTION = {
     mode: "harvest",
     supply: "axes",
     output: "wood",
-    duration: 10000,
+    duration: 20000,
     subtitle: "Spend an axe to chop a tree for wood. Trees regrow on their own.",
     verbs: { start: "Chop", startAll: "Chop all" },
     tiles: {
@@ -55,7 +55,7 @@ export const PRODUCTION = {
     mode: "harvest",
     supply: "pickaxes",
     output: "gold",
-    duration: 10000,
+    duration: 35000,
     subtitle: "Spend a pickaxe to break a rock for gold. Rocks recover over time.",
     verbs: { start: "Mine", startAll: "Mine all" },
     tiles: {
@@ -72,12 +72,12 @@ export const PRODUCTION = {
     mode: "grow",
     supply: "feed",
     output: "leather",
-    duration: 10000,
-    subtitle: "Feed your animals and collect leather when they are done.",
+    duration: 60000,
+    subtitle: "Feed your livestock and collect tough leather when they are ready.",
     verbs: { start: "Feed", collect: "Collect", startAll: "Feed all", collectAll: "Collect all" },
     tiles: {
       empty: { icon: "🐄", label: "Hungry", action: "Tap to feed" },
-      busy: { icon: "🥩", label: "Working" },
+      busy: { icon: "🥩", label: "Feeding" },
       ready: { icon: "🧥", label: "Done", action: "Tap to collect" },
     },
   },
